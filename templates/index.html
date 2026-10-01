@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>数字经济与管理学院综合管理平台</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-star">★</span>
+      <div class="brand-text">
+        <h1>数字经济与管理学院</h1>
+        <p>综合管理平台</p>
+      </div>
+    </div>
+    <div class="userbox">
+      <span class="user-name" id="user-name"></span>
+      <span class="user-role" id="user-role"></span>
+      <button id="logout-btn" class="btn btn-ghost btn-sm">退出</button>
+    </div>
+  </div>
+  <div class="topbar-redline"></div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-tab="calendar">月度日历总览</button>
+  <button class="tab" data-tab="tasks">工作安排<span id="task-badge" class="badge hidden"></span></button>
+  <button class="tab admin-tab hidden" data-tab="admin">系统管理</button>
+</nav>
+
+<main>
+  <!-- ================= 月度日历 ================= -->
+  <section id="tab-calendar" class="tabpane active">
+    <div class="panel">
+      <div class="cal-toolbar">
+        <div class="month-nav">
+          <button id="prev-month" class="btn btn-sm">◀ 上月</button>
+          <span id="month-label" class="month-label"></span>
+          <button id="next-month" class="btn btn-sm">下月 ▶</button>
+          <button id="today-btn" class="btn btn-sm">返回本月</button>
+        </div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="cal-week">
+        <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="wend">六</span><span class="wend">日</span>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <p class="cal-hint">点击日期查看/录入当日工作详情;圆点为该日工作条数,「任」为当日截止任务,红色「协」表示有任务需协调资源。</p>
+    </div>
+
+    <div class="panel ai-bar hidden" id="ai-bar">
+      <div class="ai-bar-title">智能素材萃取<span class="ai-note">仅提交非敏感文字台账 · 附件与敏感条目不上传 AI</span></div>
+      <div class="ai-actions">
+        <button id="ai-daily-btn" class="btn btn-red">生成当日工作简讯 / 通讯稿<span id="ai-daily-date" class="btn-sub"></span></button>
+        <button id="ai-month-btn" class="btn btn-blue">生成月度工作总结初稿<span id="ai-month-date" class="btn-sub"></span></button>
+      </div>
+      <div id="ai-status" class="ai-status"></div>
+      <div id="ai-result-wrap" class="hidden">
+        <textarea id="ai-result" readonly></textarea>
+        <div class="ai-result-actions">
+          <button id="ai-copy" class="btn btn-blue btn-sm">一键复制</button>
+          <span id="ai-filtered" class="ai-filtered"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 工作安排 ================= -->
+  <section id="tab-tasks" class="tabpane">
+    <div class="panel">
+      <div class="tasks-toolbar">
+        <div class="task-filters">
+          <select id="task-filter-status">
+            <option value="">全部状态</option>
+            <option>待接收</option><option>进行中</option>
+            <option>已完成</option><option>已延期</option>
+          </select>
+          <select id="task-filter-dept" class="hidden"></select>
+          <label class="check-line"><input type="checkbox" id="task-filter-coord"> 只看需协调资源</label>
+        </div>
+        <button id="task-new-btn" class="btn btn-red btn-sm hidden">＋ 发布新任务</button>
+      </div>
+      <div class="table-wrap">
+        <table class="table" id="task-table">
+          <thead><tr>
+            <th>编号</th><th>任务标题</th><th>指派部门</th><th>责任人</th>
+            <th>截止日期</th><th>优先级</th><th>状态</th><th>协调</th><th>发布人</th><th>操作</th>
+          </tr></thead>
+          <tbody id="task-tbody"></tbody>
+        </table>
+      </div>
+      <div id="task-empty" class="empty hidden">当前筛选条件下暂无任务。</div>
+    </div>
+  </section>
+
+  <!-- ================= 系统管理 ================= -->
+  <section id="tab-admin" class="tabpane">
+    <div class="panel">
+      <h3 class="panel-title">账号管理</h3>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>用户名</th><th>姓名</th><th>角色</th><th>部门</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody id="user-tbody"></tbody>
+        </table>
+      </div>
+      <h3 class="panel-title">新增账号</h3>
+      <form id="user-add-form" class="inline-form">
+        <label>用户名<input id="nu-username" required></label>
+        <label>姓名<input id="nu-name" required></label>
+        <label>角色
+          <select id="nu-role">
+            <option value="office">部门负责人</option>
+            <option value="leader">院领导</option>
+            <option value="admin">管理员</option>
+          </select>
+        </label>
+        <label id="nu-office-line">部门
+          <select id="nu-office">
+            <option>综合办</option><option>教学办</option><option>学生办</option>
+          </select>
+        </label>
+        <label>初始密码<input id="nu-password" type="text" required></label>
+        <button type="submit" class="btn btn-red btn-sm">添加</button>
+      </form>
+      <p class="cal-hint">安全提示:请通知各账号首次登录后由管理员重置初始密码。</p>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">数字经济与管理学院综合管理平台 · 内网部署 · 数据本地留存 · 敏感信息受控</footer>
+
+<!-- ============ 日期详情弹窗 ============ -->
+<div class="modal hidden" id="day-modal">
+  <div class="modal-box modal-wide">
+    <div class="modal-head"><h3 id="day-modal-title"></h3><button class="modal-close" data-close="day-modal">×</button></div>
+    <div class="modal-body" id="day-modal-body"></div>
+    <div class="modal-foot">
+      <button id="entry-add-btn" class="btn btn-red btn-sm">＋ 登记本办工作</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 台账录入/编辑弹窗 ============ -->
+<div class="modal hidden" id="entry-modal">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="entry-modal-title">登记工作</h3><button class="modal-close" data-close="entry-modal">×</button></div>
+    <form id="entry-form" class="modal-body form-body">
+      <div class="form-row"><span class="form-label">日期</span><b id="e-date"></b></div>
+      <label class="field">工作大类
+        <select id="e-category"></select>
+      </label>
+      <label class="field">工作内容 <span class="req">*</span>
+        <textarea id="e-content" rows="3" required placeholder="请填写具体工作事项、开展情况"></textarea>
+      </label>
+      <label class="field">完成情况
+        <select id="e-completion"></select>
+      </label>
+      <label class="field">参与人员
+        <input id="e-participants" placeholder="多人以顿号分隔">
+      </label>
+      <label class="field">备注
+        <input id="e-remark">
+      </label>
+      <label class="check-line warn"><input type="checkbox" id="e-sensitive"> 标记为<b>敏感事项</b>(该条将不参与 AI 生成,不上传外网)</label>
+      <div id="e-attachments" class="attach-list"></div>
+      <label class="field">新增附件(可多选)
+        <input id="e-files" type="file" multiple>
+      </label>
+      <div id="e-upload-status" class="ai-status"></div>
+    </form>
+    <div class="modal-foot">
+      <button id="e-save" class="btn btn-red btn-sm">保 存</button>
+      <button class="btn btn-sm" data-close="entry-modal">取 消</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 任务发布弹窗 ============ -->
+<div class="modal hidden" id="task-form-modal">
+  <div class="modal-box">
+    <div class="modal-head"><h3>发布工作安排</h3><button class="modal-close" data-close="task-form-modal">×</button></div>
+    <form id="task-form" class="modal-body form-body">
+      <label class="field">任务标题 <span class="req">*</span>
+        <input id="t-title" required>
+      </label>
+      <label class="field">指派部门 <span class="req">*</span>
+        <select id="t-dept"><option>综合办</option><option>教学办</option><option>学生办</option></select>
+      </label>
+      <label class="field">责任人(可选)
+        <input id="t-owner">
+      </label>
+      <label class="field">截止日期 <span class="req">*</span>
+        <input id="t-due" type="date" required>
+      </label>
+      <label class="field">优先级
+        <select id="t-priority"><option>高</option><option selected>中</option><option>低</option></select>
+      </label>
+      <label class="field">工作说明
+        <textarea id="t-desc" rows="3"></textarea>
+      </label>
+    </form>
+    <div class="modal-foot">
+      <button id="t-save" class="btn btn-red btn-sm">发 布</button>
+      <button class="btn btn-sm" data-close="task-form-modal">取 消</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 任务详情弹窗 ============ -->
+<div class="modal hidden" id="task-detail-modal">
+  <div class="modal-box modal-wide">
+    <div class="modal-head"><h3 id="task-detail-title"></h3><button class="modal-close" data-close="task-detail-modal">×</button></div>
+    <div class="modal-body" id="task-detail-body"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+<script src="/static/js/app.js"></script>
+</body>
+</html>
